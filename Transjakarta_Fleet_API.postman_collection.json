@@ -1,0 +1,300 @@
+{
+	"info": {
+		"_postman_id": "transjakarta-fleet-api",
+		"name": "Transjakarta Fleet Management API",
+		"description": "Collection untuk testing API Fleet Management System Transjakarta",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Check if the API server is running and healthy"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Last Location - B1234XYZ",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/vehicles/B1234XYZ/location",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"vehicles",
+						"B1234XYZ",
+						"location"
+					]
+				},
+				"description": "Get the last known location of vehicle B1234XYZ"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Last Location - B5678ABC",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/vehicles/B5678ABC/location",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"vehicles",
+						"B5678ABC",
+						"location"
+					]
+				},
+				"description": "Get the last known location of vehicle B5678ABC"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Last Location - B9012DEF",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/vehicles/B9012DEF/location",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"vehicles",
+						"B9012DEF",
+						"location"
+					]
+				},
+				"description": "Get the last known location of vehicle B9012DEF"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Location History - Last Hour",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/vehicles/B1234XYZ/history?start={{start_time}}&end={{end_time}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"vehicles",
+						"B1234XYZ",
+						"history"
+					],
+					"query": [
+						{
+							"key": "start",
+							"value": "{{start_time}}",
+							"description": "Start timestamp (Unix epoch)"
+						},
+						{
+							"key": "end",
+							"value": "{{end_time}}",
+							"description": "End timestamp (Unix epoch)"
+						}
+					]
+				},
+				"description": "Get location history for vehicle B1234XYZ for the last hour"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Location History - Specific Range",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/vehicles/B5678ABC/history?start=1715000000&end=1715010000",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"vehicles",
+						"B5678ABC",
+						"history"
+					],
+					"query": [
+						{
+							"key": "start",
+							"value": "1715000000",
+							"description": "Start: May 6, 2024 14:13:20 GMT"
+						},
+						{
+							"key": "end",
+							"value": "1715010000",
+							"description": "End: May 6, 2024 16:00:00 GMT"
+						}
+					]
+				},
+				"description": "Get location history for vehicle B5678ABC in a specific time range"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Location History - Today",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/vehicles/B1234XYZ/history?start={{today_start}}&end={{today_end}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"vehicles",
+						"B1234XYZ",
+						"history"
+					],
+					"query": [
+						{
+							"key": "start",
+							"value": "{{today_start}}",
+							"description": "Start of today (00:00:00)"
+						},
+						{
+							"key": "end",
+							"value": "{{today_end}}",
+							"description": "End of today (23:59:59)"
+						}
+					]
+				},
+				"description": "Get all location history for vehicle B1234XYZ for today"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Location History - Invalid Vehicle",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/vehicles/INVALID123/history?start=1715000000&end=1715010000",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"vehicles",
+						"INVALID123",
+						"history"
+					],
+					"query": [
+						{
+							"key": "start",
+							"value": "1715000000"
+						},
+						{
+							"key": "end",
+							"value": "1715010000"
+						}
+					]
+				},
+				"description": "Test error handling for non-existent vehicle ID"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Location History - Missing Parameters",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/vehicles/B1234XYZ/history",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"vehicles",
+						"B1234XYZ",
+						"history"
+					]
+				},
+				"description": "Test error handling when start and end parameters are missing"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Calculate timestamps for different scenarios",
+					"const now = Math.floor(Date.now() / 1000);",
+					"const oneHourAgo = now - 3600;",
+					"",
+					"// For \"last hour\" test",
+					"pm.environment.set('start_time', oneHourAgo);",
+					"pm.environment.set('end_time', now);",
+					"",
+					"// For \"today\" test",
+					"const today = new Date();",
+					"today.setHours(0, 0, 0, 0);",
+					"const todayStart = Math.floor(today.getTime() / 1000);",
+					"today.setHours(23, 59, 59, 999);",
+					"const todayEnd = Math.floor(today.getTime() / 1000);",
+					"",
+					"pm.environment.set('today_start', todayStart);",
+					"pm.environment.set('today_end', todayEnd);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Common tests for all requests",
+					"pm.test(\"Response time is less than 1000ms\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+					"});",
+					"",
+					"pm.test(\"Content-Type is application/json\", function () {",
+					"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}

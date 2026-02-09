@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: transjakarta-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: transjakarta_fleet
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - transjakarta-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: transjakarta-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - transjakarta-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Eclipse Mosquitto MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: transjakarta-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    networks:
+      - transjakarta-network
+    command: mosquitto -c /mosquitto/config/mosquitto.conf
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1", "-i", "healthcheck", "-W", "3"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: transjakarta-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: transjakarta_fleet
+      DB_SSLMODE: disable
+      MQTT_BROKER: tcp://mosquitto:1883
+      MQTT_CLIENT_ID: transjakarta-backend
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      RABBITMQ_EXCHANGE: fleet.events
+      RABBITMQ_QUEUE: geofence_alerts
+      PORT: 8080
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - transjakarta-network
+    restart: unless-stopped
+
+  # MQTT Publisher (Vehicle Simulator)
+  publisher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: transjakarta-publisher
+    environment:
+      MQTT_BROKER: tcp://mosquitto:1883
+      MQTT_CLIENT_ID: vehicle-simulator
+    command: ["./publisher"]
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    networks:
+      - transjakarta-network
+    restart: unless-stopped
+
+networks:
+  transjakarta-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  mosquitto_data:
+  mosquitto_logs:
