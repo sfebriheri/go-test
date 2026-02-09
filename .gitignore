@@ -45,3 +45,7 @@ docs/swagger.yaml
 main
 publisher
 *.log
+
+
+# Ignore environment variable file
+.env
